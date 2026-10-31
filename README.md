@@ -4,6 +4,10 @@ Et globalt søk og en kryssreferanse for prekenene til L.L. Læstadius. Finn en 
 
 **Åpne appen:** https://prekensok.github.io/
 
+Appen finnes på norsk, svensk, finsk og engelsk. Velg språk øverst til høyre, eller bruk en direkte lenke:
+[svenska](https://prekensok.github.io/?lang=sv) · [suomi](https://prekensok.github.io/?lang=fi) · [English](https://prekensok.github.io/?lang=en).
+Bibelbøkene vises med forkortelser på valgt språk, og søket forstår norske, svenske, finske og engelske forkortelser (f.eks. `Luk 15`, `Luuk 15`, `Luke 15`, `Gen 3:15`).
+
 Du kan søke på
 - bibeltekst: `Matt 11,2`, `Sal 42,8` (svenske og norske bokforkortelser virker begge)
 - søndag eller anledning: `påskedag`, `advent`
@@ -34,7 +38,7 @@ Du kan søke på
 - `peltomaa-predikotextregister.tsv`: Lauri Peltomaa, *Predikotextregister* (2003), side 8–45, lest maskinelt (OCR) fra skannede sider. Det kan finnes lesefeil.
 - `postille1-kryssreferanse.txt`: «Kryssreferanser til andre postiller», Postille I s. 796 (PI | Saa | SW | RRS | Eng).
 - `brune-kirkepostille-1-32.txt`: søndag, år og tekst for Brunes *Kirkepostille* nr. 1–32 (fra OCR).
-- Søndager og tekster for RRS og Postille I kommer fra registrene deres og ligger innebygd i `index.html`.
+- `prekener.js`: den samlede databasen som appen bruker, generert fra kildene over. Søndager og tekster for RRS og Postille I kommer fra registrene deres.
 
 Saa-kolonnen i Postille I-tabellen («Saarnat og Samlade Predikningar») vises som to separate referanser med samme nummer. Nummeret stemmer med Saarnat-nummeret hos Peltomaa for 133 av 137 prekener.
 
