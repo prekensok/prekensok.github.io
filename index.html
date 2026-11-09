@@ -268,9 +268,28 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":
 const fold = s => String(s||"").toLowerCase().replace(/[.,:;()\-–!?«»“”"]/g," ").replace(/\s+/g," ").trim();
 const idnorm = s => String(s||"").toLowerCase().replace(/[\s.]/g,"").replace(/^s(?=\d)/,"s");
 const BOOKRE = /^\s*([1-5])?\s*\.?\s*([A-Za-zÅÄÖØÆåäöøæ]+)\.?\s*(.*)$/;
+// Johannes' åpenbaring: forkortelser og fulle navn på alle språk blir til «Upp»
+const REV_RE = /^\s*(?:joh(?:annes|anneksen)?['’]?s?\.?\s+)?(?:åpenbaring(?:en|sboken)?|åpb?|upp(?:b|enbarelse(?:n|boken)?)?|ilm(?:estys(?:kirja)?)?|revelations?|rev)(?!\p{L})\.?/iu;
+const NEAR = {no:"Ingen treff på akkurat disse versene. Samme kapittel:",sv:"Inga träffar på just dessa verser. Samma kapitel:",fi:"Ei osumia juuri näille jakeille. Sama luku:",en:"No results for those exact verses. Same chapter:"};
+const ONE_CHAPTER = new Set(["jud","filem","2joh","3joh"]);
+// "1mos 3 17 18" -> bok, kapittel og versområde
+function keyParts(k){
+  const [b, ...rest] = k.split(" "), n = rest.map(Number);
+  if (ONE_CHAPTER.has(b) && n.length === 1) return {b, c:1, v1:n[0], v2:n[0]};
+  return {b, c:n.length ? n[0] : null, v1:n.length > 1 ? n[1] : null, v2:n.length > 1 ? Math.max(...n.slice(1)) : null};
+}
+// 2 = treffer bok/kapittel/vers, 1 = samme kapittel, andre vers, 0 = ingen
+function verseMatch(key, q){
+  const d = keyParts(key);
+  if (d.b !== q.b) return 0;
+  if (q.c === null) return 2;
+  if (d.c !== q.c) return 0;
+  if (q.v1 === null || d.v1 === null) return 2;
+  return (q.v1 <= d.v2 && q.v2 >= d.v1) ? 2 : 1;
+}
 
 function parseRef(s){
-  const m = String(s).match(BOOKRE);
+  const m = String(s).replace(REV_RE, "Upp ").match(BOOKRE);
   if (!m) return null;
   const w = m[2].toLowerCase();
   if (MOSES[w] && !m[1]) return {num:MOSES[w], book:"mos", rest:m[3]};
@@ -332,25 +351,29 @@ function parseQuery(q, f){
 function search(q, f){
   const {col, rest} = parseQuery(q, f);
   const id = idnorm(rest), isId = /^(s)?\d+[a-c]?$/i.test(id) || /^\d+:\d+$/.test(rest.trim());
-  const bk = bibleKey(rest), words = fold(rest);
+  const bk = bibleKey(rest), words = fold(rest), bq = bk ? keyParts(bk) : null;
   const needles = [words, ...SYN.filter(([k]) => words.includes(k)).map(([, v]) => v)];
-  const res = [];
+  const res = [], nearby = [];
   for (const it of INDEX){
-    let score = 0; const hit = new Set();
+    let score = 0, vm = 0; const hit = new Set();
     if (isId){
       for (const [c, n] of it.ids){
         if ((!col || c === col || (col === "PI" && c === "PAN")) && (n === id || n === "s" + id)) { score = 100; hit.add(c); }
       }
     }
     if (!col || !isId){
-      if (bk && it.bible.some(b => (b + " ").startsWith(bk + " "))) score = Math.max(score, 50);
-      else if (!isId && words.length > 1 && needles.some(n => it.words.includes(n))) score = Math.max(score, 20);
+      if (bq) vm = Math.max(0, ...it.bible.map(b => verseMatch(b, bq)));
+      if (vm === 2) score = Math.max(score, 50);
+      else if (!isId && !(bq && bq.c !== null) && words.length > 1 && needles.some(n => it.words.includes(n))) score = Math.max(score, 20);
       if (col && score && !it.e.r[col]) score = 0;
     }
     if (score) res.push({it, score, hit});
+    else if (vm === 1 && (!col || it.e.r[col])) nearby.push({it, score:10, hit});
   }
+  const near = !res.length && nearby.length > 0;
+  if (near) res.push(...nearby);
   res.sort((a, b) => b.score - a.score || (b.it.e.r.P1 ? 1 : 0) - (a.it.e.r.P1 ? 1 : 0) || a.it.i - b.it.i);
-  return {res, words: isId ? "" : [rest, ...needles.slice(1)].join(" ")};
+  return {res, near, words: isId ? "" : [rest, ...needles.slice(1)].join(" ")};
 }
 
 function hl(text, q){
@@ -407,8 +430,8 @@ function run(){
     $count.textContent = "";
     $out.innerHTML = ""; saveUrl(); return;
   }
-  const {res, words} = search(q, f);
-  $count.textContent = res.length ? t.count(res.length) : "";
+  const {res, words, near} = search(q, f);
+  $count.textContent = res.length ? (near ? NEAR[L] + " " : "") + t.count(res.length) : "";
   $out.innerHTML = res.length
     ? res.slice(0, LIMIT).map(r => card(r, words)).join("") + (res.length > LIMIT ? `<button class="more" id="more">${t.more(res.length - LIMIT)}</button>` : "")
     : `<div class="empty">${esc(t.none(q))}</div>`;
