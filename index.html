@@ -113,12 +113,11 @@ const SRC = `Lauri Peltomaa, <em>Predikotextregister</em> (Alingsås 2003); «Kr
 const T = {
   no: {
     title:"Læstadiansk prekensøk", h1:"Finn en preken",
-    sub:"Finn en preken av L.L. Læstadius og se hvor den står i de ulike prekensamlingene: norske, svenske, finske, samiske, tyske og amerikanske.",
+    sub:"Finn en preken av Prosten Lars Levi Læstadius og se hvor den står i de ulike prekensamlingene: norske, svenske, finske, samiske, tyske og amerikanske.",
     ph:"Søk: bibeltekst, søndag, stikkord, nummer, «RRS 83» …", all:"Søk i alle", inCol:"Søk i samling",
     ex:"Eksempler:", examples:["Matt 11,2","påskedag","Absalom","RRS 83","Br 26B","Bø 22","PI 12","AK 19"],
     tip:n => `Du kan også skrive bare et nummer, f.eks. ${n}, for å finne det nummeret i alle samlingene. Velg en samling i listen for å søke bare i den.`,
     note:"Vær oppmerksom på at det kan være feil i kildene. Registrene kan ha trykkfeil, og noen av dem er lest maskinelt fra skannede sider.",
-    start:"Skriv i søkefeltet for å finne en preken.",
     count:n => `${n} treff`, more:n => `Vis flere (${n})`,
     none:q => `Ingen treff for «${q}». Prøv en bibeltekst (f.eks. «Luk 15»), en søndag («advent»), et stikkord, samling + nummer («RRS 83», «Br 3A») eller bare et nummer («83»).`,
     noText:"Bibeltekst ikke registrert", flagOnly:"Finnes i samlingen (nummer ikke oppgitt i Postille I-tabellen)",
@@ -136,7 +135,6 @@ const T = {
     ex:"Exempel:", examples:["Matt 11:2","påsk","Absalom","SW 17B","FR 84:2","RRS 83","Saarnat 14"],
     tip:n => `Du kan också skriva bara ett nummer, t.ex. ${n}, för att hitta det numret i alla samlingar. Välj en samling i listan för att bara söka i den.`,
     note:"Observera att det kan finnas fel i källorna. Registren kan ha tryckfel, och några av dem är maskinellt inlästa från skannade sidor.",
-    start:"Skriv i sökfältet för att hitta en predikan.",
     count:n => `${n} ${n === 1 ? "träff" : "träffar"}`, more:n => `Visa fler (${n})`,
     none:q => `Inga träffar för «${q}». Prova en bibeltext (t.ex. «Luk 15»), en söndag («advent»), ett sökord, samling + nummer («SW 17B», «RRS 83») eller bara ett nummer («83»).`,
     noText:"Bibeltext saknas", flagOnly:"Finns i samlingen (numret anges inte i tabellen i Postille I)",
@@ -154,7 +152,6 @@ const T = {
     ex:"Esimerkkejä:", examples:["Matt. 11:2","pääsiäinen","Saarnat 14","Panula 1540","Häkli 241","RRS 83"],
     tip:n => `Voit myös kirjoittaa pelkän numeron, esim. ${n}, jolloin numeroa haetaan kaikista kokoelmista. Valitse kokoelma luettelosta, jos haluat hakea vain siitä.`,
     note:"Huomaa, että lähteissä voi olla virheitä. Rekistereissä voi olla painovirheitä, ja osa niistä on luettu koneellisesti skannatuilta sivuilta.",
-    start:"Kirjoita hakukenttään löytääksesi saarnan.",
     count:n => `${n} ${n === 1 ? "osuma" : "osumaa"}`, more:n => `Näytä lisää (${n})`,
     none:q => `Ei osumia haulle «${q}». Kokeile raamatunkohtaa (esim. «Luuk. 15»), pyhäpäivää («adventti»), hakusanaa, kokoelmaa ja numeroa («Saarnat 14», «RRS 83») tai pelkkää numeroa («83»).`,
     noText:"Raamatunkohtaa ei ole merkitty", flagOnly:"Kokoelmassa (numeroa ei ole annettu Postille I:n taulukossa)",
@@ -172,7 +169,6 @@ const T = {
     ex:"Examples:", examples:["Matt 11:2","Easter","Luke 15","NP 3","III 20","IV 41","RRS 83"],
     tip:n => `You can also type just a number, e.g. ${n}, to find that number in every collection. Choose a collection from the list to search only that one.`,
     note:"Please note that the sources may contain errors. The registers may have misprints, and some of them have been read by machine from scanned pages.",
-    start:"Type in the search box to find a sermon.",
     count:n => `${n} ${n === 1 ? "result" : "results"}`, more:n => `Show more (${n})`,
     none:q => `No results for “${q}”. Try a Bible text (e.g. “Luke 15”), a Sunday (“Advent”), a keyword, collection + number (“NP 3”, “RRS 83”) or just a number (“83”).`,
     noText:"No Bible text recorded", flagOnly:"In this collection (number not given in the Postille I table)",
@@ -413,7 +409,7 @@ let LIMIT = 40;
 function run(){
   const q = $q.value, f = $f.value, t = T[L];
   if (!q.trim()){
-    $count.textContent = t.start;
+    $count.textContent = "";
     $out.innerHTML = ""; saveUrl(); return;
   }
   const {res, words} = search(q, f);
